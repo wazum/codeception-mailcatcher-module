@@ -339,6 +339,143 @@ class MailCatcher extends Module
     }
 
     /**
+     * See In nth Email
+     *
+     * Look for a string in the nth email
+     **/
+    public function seeInNthEmail(int $nth, string $expected): void
+    {
+        $email = $this->nthMessage($nth);
+        $this->seeInEmail($email, $expected);
+    }
+
+    /**
+     * See In nth Email subject
+     *
+     * Look for a string in the nth email subject
+     **/
+    public function seeInNthEmailSubject(int $nth, string $expected): void
+    {
+        $email = $this->nthMessage($nth);
+        $this->seeInEmailSubject($email, $expected);
+    }
+
+    /**
+     * Don't See In nth Email subject
+     *
+     * Look for the absence of a string in the nth email subject
+     **/
+    public function dontSeeInNthEmailSubject(int $nth, string $expected): void
+    {
+        $email = $this->nthMessage($nth);
+        $this->dontSeeInEmailSubject($email, $expected);
+    }
+
+    /**
+     * Don't See In nth Email
+     *
+     * Look for the absence of a string in the nth email
+     **/
+    public function dontSeeInNthEmail(int $nth, string $unexpected): void
+    {
+        $email = $this->nthMessage($nth);
+        $this->dontSeeInEmail($email, $unexpected);
+    }
+
+    /**
+     * See In nth Email To
+     *
+     * Look for a string in the nth email sent to $address
+     **/
+    public function seeInNthEmailTo(int $nth, string $address, string $expected): void
+    {
+        $email = $this->nthMessageTo($nth, $address);
+        $this->seeInEmail($email, $expected);
+    }
+
+    /**
+     * Don't See In nth Email To
+     *
+     * Look for the absence of a string in the nth email sent to $address
+     **/
+    public function dontSeeInNthEmailTo(int $nth, string $address, string $unexpected): void
+    {
+        $email = $this->nthMessageTo($nth, $address);
+        $this->dontSeeInEmail($email, $unexpected);
+    }
+
+    /**
+     * See In nth Email Subject To
+     *
+     * Look for a string in the nth email subject sent to $address
+     **/
+    public function seeInNthEmailSubjectTo(int $nth, string $address, string $expected): void
+    {
+        $email = $this->nthMessageTo($nth, $address);
+        $this->seeInEmailSubject($email, $expected);
+    }
+
+    /**
+     * Don't See In nth Email Subject To
+     *
+     * Look for the absence of a string in the nth email subject sent to $address
+     **/
+    public function dontSeeInNthEmailSubjectTo(int $nth, string $address, string $unexpected): void
+    {
+        $email = $this->nthMessageTo($nth, $address);
+        $this->dontSeeInEmailSubject($email, $unexpected);
+    }
+
+    public function nthMessage(int $nth): \Codeception\Util\Email
+    {
+        if ($nth < 1) {
+            $this->fail("nth must be greater than zero");
+        }
+
+        $messages = $this->messages();
+        if (empty($messages)) {
+            $this->fail("No messages received");
+        }
+
+        if (!isset($messages[$nth - 1])) {
+            $this->fail("No message found at location {$nth}");
+        }
+
+        return $this->emailFromId($messages[$nth - 1]['id']);
+    }
+
+    public function nthMessageTo(int $nth, string $address): \Codeception\Util\Email
+    {
+        if ($nth < 1) {
+            $this->fail("nth must be greater than zero");
+        }
+
+        $ids = [];
+        $messages = $this->messages();
+        if (empty($messages)) {
+            $this->fail("No messages received");
+        }
+
+        foreach ($messages as $message) {
+            foreach ($message['recipients'] as $recipient) {
+                if (strpos($recipient, $address) !== false) {
+                    $ids[] = $message['id'];
+                }
+            }
+        }
+
+        if (count($ids) === 0) {
+            $this->fail("No messages sent to {$address}");
+        }
+
+        if (!isset($ids[$nth - 1])) {
+            $this->fail("No message found at location {$nth} sent to {$address}");
+        }
+
+        return $this->emailFromId($ids[$nth - 1]);
+    }
+
+    /**
      * Test email count equals expected value
      *
      * @author Mike Crowe <drmikecrowe@gmail.com>
