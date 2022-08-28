@@ -55,6 +55,28 @@ class MailCatcher extends Module
     }
 
     /**
+     * See sender in last Email
+     *
+     * Compare a string with the last email sender
+     **/
+    public function seeSenderInLastEmail(string $expected): void
+    {
+        $email = $this->lastMessage();
+        $this->seeSenderInEmail($email, $expected);
+    }
+
+    /**
+     * See recipient in last Email
+     *
+     * Look for a string in the last email recipients
+     **/
+    public function seeRecipientInLastEmail(string $expected): void
+    {
+        $email = $this->lastMessage($nth);
+        $this->seeRecipientInEmail($email, $expected);
+    }
+
+    /**
      * See In Last Email subject
      *
      * Look for a string in the most recent email subject
@@ -414,6 +436,28 @@ class MailCatcher extends Module
         $this->dontSeeInEmailSubject($email, $unexpected);
     }
 
+    /**
+     * See sender in nth Email
+     *
+     * Compare a string with the nth email sender
+     **/
+    public function seeSenderInNthEmail(int $nth, string $expected): void
+    {
+        $email = $this->nthMessage($nth);
+        $this->seeSenderInEmail($email, $expected);
+    }
+
+    /**
+     * See recipient in nth Email
+     *
+     * Look for a string in the nth email recipients
+     **/
+    public function seeRecipientInNthEmail(int $nth, string $expected): void
+    {
+        $email = $this->nthMessage($nth);
+        $this->seeRecipientInEmail($email, $expected);
+    }
+
     public function nthMessage(int $nth): \Codeception\Util\Email
     {
         if ($nth < 1) {
@@ -556,6 +600,16 @@ class MailCatcher extends Module
         }else{
             $this->assertNotContains($unexpected, $email->getSourceQuotedPrintableDecoded(), "Email Does Not Contain");
         }
+    }
+
+    protected function seeSenderInEmail(Email $email, string $expected): void
+    {
+        $this->assertEquals("<$expected>", $email->getSender());
+    }
+
+    protected function seeRecipientInEmail(Email $email, string $expected): void
+    {
+        $this->assertContains("<$expected>", $email->getRecipients());
     }
 
     protected function grabMatchesFromEmail(Email $email, string $regex): array
