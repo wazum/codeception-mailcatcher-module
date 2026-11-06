@@ -292,7 +292,7 @@ class MailCatcher extends Module
         $regex = '#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#';
         $email = $this->lastMessage();
 
-        $message = Message::from($email->getSource());
+        $message = Message::from($email->getSource(), false);
 
         $text = $message->getTextContent();
         preg_match_all($regex, $text, $text_matches);
@@ -315,7 +315,7 @@ class MailCatcher extends Module
     {
         $email = $this->lastMessage();
 
-        $message = Message::from($email->getSource());
+        $message = Message::from($email->getSource(), false);
 
         $attachments = [];
 
@@ -338,7 +338,7 @@ class MailCatcher extends Module
     public function seeAttachmentInLastEmail(string $expectedFilename): void
     {
         $email = $this->lastMessage();
-        $message = Message::from($email->getSource());
+        $message = Message::from($email->getSource(), false);
 
         foreach ($message->getAllAttachmentParts() as $attachmentPart) {
             if ($attachmentPart->getFilename() === $expectedFilename) {
@@ -527,7 +527,7 @@ class MailCatcher extends Module
     public function seeEmailAttachmentCount(int $expectedCount): void
     {
         $email = $this->lastMessage();
-        $message = Message::from($email->getSource());
+        $message = Message::from($email->getSource(), false);
         $this->assertEquals($expectedCount, $message->getAttachmentCount());
     }
 
